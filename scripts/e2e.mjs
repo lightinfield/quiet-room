@@ -14,6 +14,7 @@ const expectedSections = [
   ['sermons', '主日证道'],
   ['devotions', '灵修笔记'],
   ['theology', '神学课堂'],
+  ['counseling', '圣辅课程'],
   ['reading', '读书笔记'],
   ['notes', '要点思考'],
   ['life', '信仰与生活'],
@@ -48,6 +49,14 @@ await check('封面进入静室', async () => {
   assert(response?.ok(), `HTTP ${response?.status()}`);
   assert((await page.locator('.cover-copy h1').textContent())?.includes('静室'), '封面站名不正确');
   assert(await page.locator('.cover-page').evaluate((el) => getComputedStyle(el).backgroundImage.includes('jingshi-cover.webp')), '封面真实照片未加载');
+  const coverSize = await page.locator('.cover-page').evaluate((el) => new Promise((resolve) => {
+    const src = getComputedStyle(el).backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1];
+    const img = new Image();
+    img.onload = () => resolve([img.naturalWidth, img.naturalHeight]);
+    img.onerror = () => resolve([0, 0]);
+    img.src = src || '';
+  }));
+  assert(coverSize[0] >= 1920 && coverSize[1] >= 1080, `封面分辨率不足 ${coverSize.join('×')}`);
   await page.getByRole('link', { name: /进入静室/ }).click();
   await page.waitForURL('**/study/');
   assert((await page.locator('.home-intro h1').textContent())?.includes('静室'), '首页未加载');
@@ -55,13 +64,36 @@ await check('封面进入静室', async () => {
   await page.screenshot({ path: join(outDir, 'home-desktop.png'), fullPage: true });
 });
 
-await check('七个栏目全部可达并展示三类入口', async () => {
+await check('首页紧凑横向排版', async () => {
+  await page.goto(`${baseURL}/study/`, { waitUntil: 'networkidle' });
+  assert((await page.locator('.home-intro p').textContent())?.includes('在这里安静读经、学习、记录，也把所信的带回日常生活。'), '首页说明文案不正确');
+  assert(await page.locator('.section-tile').count() === 8, '首页内容目录应有八个入口');
+  const tile = page.locator('.section-tile').first();
+  const titleBox = await tile.locator('h3').boundingBox();
+  const descBox = await tile.locator('p').boundingBox();
+  assert(titleBox && descBox && Math.abs((titleBox.y + titleBox.height / 2) - (descBox.y + descBox.height / 2)) < 18, '目录标题与说明没有横向对齐');
+  const recent = page.locator('.content-card').first();
+  const recentTitle = await recent.locator('h3').boundingBox();
+  const scripture = await recent.locator('.card-scripture').boundingBox();
+  assert(recentTitle && scripture && Math.abs((recentTitle.y + recentTitle.height / 2) - (scripture.y + scripture.height / 2)) < 18, '最近整理标题与经文没有并排');
+});
+
+await check('八个栏目全部可达并展示分类入口', async () => {
   for (const [slug, title] of expectedSections) {
     const response = await page.goto(`${baseURL}/${slug}/`, { waitUntil: 'networkidle' });
     assert(response?.ok(), `${slug} HTTP ${response?.status()}`);
     assert((await page.locator('h1.page-title').textContent())?.trim() === title, `${slug} 标题错误`);
-    assert(await page.locator('.collection-card').count() === 3, `${slug} 分类入口不是 3 个`);
+    const expectedCount = slug === 'counseling' ? 4 : 3;
+    assert(await page.locator('.collection-card').count() === expectedCount, `${slug} 分类入口数量错误`);
   }
+});
+
+await check('圣辅课程按学习大纲下钻', async () => {
+  await page.goto(`${baseURL}/counseling/`, { waitUntil: 'networkidle' });
+  assert(await page.locator('.collection-card').count() === 4, '圣辅课程应有四个学习大纲');
+  await page.goto(`${baseURL}/counseling/biblical-foundations/`, { waitUntil: 'networkidle' });
+  assert(await page.locator('.outline-item').count() >= 1, '圣辅基础类目缺少内容大纲');
+  assert(await page.locator('.content-card').count() >= 1, '圣辅基础类目缺少正文入口');
 });
 
 await check('类目→大纲→正文下钻与深链', async () => {
@@ -133,6 +165,16 @@ await check('可选轻音乐默认关闭且点击可开启', async () => {
   await button.click();
   assert(await button.getAttribute('aria-pressed') === 'true', '音乐点击后未进入播放状态');
   assert((await page.locator('[data-music-status]').textContent())?.includes('正在播放'), '播放状态文案未更新');
+  const firstTitle = await page.locator('[data-music-title]').textContent();
+  await page.locator('[data-music-next]').click();
+  const secondTitle = await page.locator('[data-music-title]').textContent();
+  assert(firstTitle !== secondTitle, '下一首没有切换曲目');
+  await page.locator('[data-music-audio]').evaluate((audio) => audio.dispatchEvent(new Event('ended')));
+  const thirdTitle = await page.locator('[data-music-title]').textContent();
+  assert(secondTitle !== thirdTitle, '曲目结束后没有继续循环播放下一首');
+  await page.locator('[data-music-audio]').evaluate((audio) => audio.dispatchEvent(new Event('ended')));
+  const loopTitle = await page.locator('[data-music-title]').textContent();
+  assert(loopTitle === firstTitle, '第三首结束后没有循环回第一首');
   await button.click();
 });
 
@@ -171,6 +213,18 @@ await check('移动端导航与布局无横向溢出', async () => {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   assert(overflow <= 1, `页面横向溢出 ${overflow}px`);
   await page.screenshot({ path: join(outDir, 'home-mobile.png'), fullPage: true });
+});
+
+await check('核心页面桌面与移动端均无横向溢出', async () => {
+  const routes = ['/', '/study/', ...expectedSections.map(([slug]) => `/${slug}/`), '/index/', '/about/', '/admin/', '/counseling/biblical-foundations/', '/counseling/biblical-foundations/counseling-begins-with-scripture/', '/sermons/year/2026/'];
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 375, height: 812 }]) {
+    await page.setViewportSize(viewport);
+    for (const route of routes) {
+      await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle' });
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      assert(overflow <= 1, `${viewport.width}px ${route} 横向溢出 ${overflow}px`);
+    }
+  }
 });
 
 await check('正常页面无未捕获浏览器错误', async () => {

@@ -5,24 +5,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 <BaseLayout title="关于静室">
   <div class="page-shell">
     <header class="section-header">
-      <h1 class="page-title">关于静室</h1>
-      <p class="page-lead">“静室”只表达一件事：留出一处安静的空间，在主前读经、思想、学习与记录。</p>
+      <div class="section-title-line">
+        <h1 class="page-title">关于静室</h1>
+        <span class="title-divider" aria-hidden="true"></span>
+        <p class="page-lead">“静室”只表达一件事：留出一处安静的空间，在主前读经、思想、学习与记录。</p>
+      </div>
     </header>
-    <div class="about-grid">
-      <div class="principle-list">
-        <div class="principle"><strong>圣经</strong><p>以圣经为信仰与生活的最高权威。</p></div>
-        <div class="principle"><strong>认信</strong><p>以威斯敏斯特标准为主要神学坐标，与历史教会共同认信。</p></div>
-        <div class="principle"><strong>教会</strong><p>重视地方教会、主日、圣道、圣礼与祷告等蒙恩之道。</p></div>
-        <div class="principle"><strong>生活</strong><p>神学学习最终指向敬拜、成圣、服事与真实生活。</p></div>
-      </div>
-      <div class="prose" style="width:auto;padding-top:0">
-        <h2>编辑原则</h2>
-        <p>这里不是完整神学百科，而是一处持续整理中的个人空间。内容尽量区分经文原意、历史认信、他人观点和个人判断；引用保留出处，尚未确认的结论不包装成教义共识。</p>
-        <h2>内容之间如何连接</h2>
-        <p>每篇内容都属于一个固定栏目，同时可以关联经文、信条与主题标签。因此同一个“称义”问题既可能出现在主日证道，也可能在神学课堂、读书笔记和要点思考中从不同角度继续展开。</p>
-        <h2>一句提醒</h2>
-        <p>知识若没有把人带回敬拜、悔改、爱神与爱邻舍，就还没有完成它应有的工作。</p>
-      </div>
+    <div class="about-principles">
+      <div class="principle"><strong>圣经</strong><span></span><p>以圣经为信仰与生活的最高权威。</p></div>
+      <div class="principle"><strong>认信</strong><span></span><p>以威斯敏斯特标准为主要神学坐标，与历史教会共同认信。</p></div>
+      <div class="principle"><strong>教会</strong><span></span><p>重视地方教会、主日、圣道、圣礼与祷告等蒙恩之道。</p></div>
+      <div class="principle"><strong>生活</strong><span></span><p>神学学习最终指向敬拜、成圣、服事与真实生活。</p></div>
+    </div>
+    <div class="about-notes">
+      <section><h2>编辑原则</h2><p>这里不是完整神学百科，而是一处持续整理中的个人空间。内容尽量区分经文原意、历史认信、他人观点和个人判断；引用保留出处，尚未确认的结论不包装成教义共识。</p></section>
+      <section><h2>内容连接</h2><p>每篇内容都属于一个固定栏目，同时可以关联经文、信条与主题标签。同一个问题因此可以在讲道、课程、阅读和思考中继续展开。</p></section>
+      <section><h2>一句提醒</h2><p>知识若没有把人带回敬拜、悔改、爱神与爱邻舍，就还没有完成它应有的工作。</p></section>
     </div>
   </div>
 </BaseLayout>

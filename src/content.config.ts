@@ -7,7 +7,7 @@ const library = defineCollection({
   schema: z.object({
     title: z.string().min(1),
     slug: z.string().regex(/^[a-z0-9-]+$/),
-    section: z.enum(['confession', 'sermons', 'devotions', 'theology', 'reading', 'notes', 'life']),
+    section: z.enum(['confession', 'sermons', 'devotions', 'theology', 'counseling', 'reading', 'notes', 'life']),
     collection: z.object({ title: z.string(), slug: z.string().regex(/^[a-z0-9-]+$/) }),
     unit: z.object({ title: z.string(), slug: z.string().regex(/^[a-z0-9-]+$/) }).optional(),
     date: z.coerce.date(),

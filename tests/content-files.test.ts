@@ -6,10 +6,10 @@ const root = join(process.cwd(), 'src', 'content', 'library');
 const files = readdirSync(root).filter((name) => name.endsWith('.md'));
 
 describe('内容库基础约束', () => {
-  it('覆盖所有七个栏目并提供足够的验收样例', () => {
-    expect(files.length).toBeGreaterThanOrEqual(12);
+  it('覆盖所有八个栏目并提供足够的验收样例', () => {
+    expect(files.length).toBeGreaterThanOrEqual(16);
     const text = files.map((file) => readFileSync(join(root, file), 'utf8')).join('\n');
-    for (const section of ['confession', 'sermons', 'devotions', 'theology', 'reading', 'notes', 'life']) {
+    for (const section of ['confession', 'sermons', 'devotions', 'theology', 'counseling', 'reading', 'notes', 'life']) {
       expect(text).toContain(`section: ${section}`);
     }
   });

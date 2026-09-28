@@ -3,6 +3,7 @@ export type SectionKey =
   | 'sermons'
   | 'devotions'
   | 'theology'
+  | 'counseling'
   | 'reading'
   | 'notes'
   | 'life';
@@ -10,7 +11,7 @@ export type SectionKey =
 export const SITE = {
   name: '静室',
   subtitle: '在主前安静，默想真道',
-  description: '一处安静整理认信、讲道、灵修、神学学习、阅读与生活实践的个人空间。',
+  description: '一处安静整理认信、讲道、灵修、神学学习、圣辅课程、阅读与生活实践的个人空间。',
   owner: 'lightinfield',
   repository: 'https://github.com/lightinfield/quiet-room',
 };
@@ -57,6 +58,16 @@ export const SECTIONS: Record<SectionKey, {
       { title: '系统神学', slug: 'systematic-theology', description: '圣经论、神论、基督论、救恩论、教会论与末世论。' },
       { title: '圣约神学', slug: 'covenant-theology', description: '从创造、救赎与圣约结构理解整本圣经。' },
       { title: '教会历史', slug: 'church-history', description: '从古代教会、宗教改革到现代改革宗传统。' },
+    ],
+  },
+  counseling: {
+    title: '圣辅课程', short: '圣辅', href: '/counseling/', icon: '◦',
+    description: '按课程大纲学习圣经辅导，从神学根基、生命更新到具体处境与教会实践。',
+    groups: [
+      { title: '圣经与辅导基础', slug: 'biblical-foundations', description: '从圣经人论、罪与恩典、成圣、苦难与盼望建立辅导根基。' },
+      { title: '心灵与生命更新', slug: 'heart-and-sanctification', description: '整理动机、偶像、悔改、信心、习惯与渐进成圣。' },
+      { title: '辅导主题与处境', slug: 'counseling-topics', description: '按婚姻家庭、焦虑惧怕、冲突、哀伤与成瘾等主题学习。' },
+      { title: '教会中的辅导实践', slug: 'church-counseling-practice', description: '学习倾听、提问、陪伴、作业、界限、转介与群体牧养。' },
     ],
   },
   reading: {

@@ -36,9 +36,11 @@ const url = (path: string) => `${base}${path.replace(/^\//, '')}`;
         <a href={url(section.href)}>{section.title}</a><span aria-hidden="true">/</span>
         <span aria-current="page">{collection.title}</span>
       </nav>
-      <p class="page-kicker">{section.title} · COLLECTION</p>
-      <h1 class="page-title">{collection.title}</h1>
-      <p class="page-lead">{collection.description}</p>
+      <div class="section-title-line">
+        <h1 class="page-title">{collection.title}</h1>
+        <span class="title-divider" aria-hidden="true"></span>
+        <p class="page-lead">{collection.description}</p>
+      </div>
     </header>
 
     {units.length > 0 ? (

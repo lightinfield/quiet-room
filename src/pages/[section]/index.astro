@@ -21,13 +21,15 @@ const url = (path: string) => `${base}${path.replace(/^\//, '')}`;
 <BaseLayout title={info.title} description={info.description}>
   <div class="page-shell">
     <header class="section-header">
-      <p class="page-kicker">{info.short.toUpperCase()} · SECTION</p>
-      <h1 class="page-title">{info.title}</h1>
-      <p class="page-lead">{info.description}</p>
+      <div class="section-title-line">
+        <h1 class="page-title">{info.title}</h1>
+        <span class="title-divider" aria-hidden="true"></span>
+        <p class="page-lead">{info.description}</p>
+      </div>
     </header>
 
     <section aria-labelledby="collections-title">
-      <div class="section-heading"><div><h2 id="collections-title">分类与系列</h2><p>先进入类目，再沿大纲进入具体内容。</p></div></div>
+      <div class="section-heading"><div><h2 id="collections-title">分类与系列</h2><p>进入类目后按大纲继续阅读。</p></div></div>
       {sectionKey === 'sermons' && years.length > 0 && (
         <div class="year-archive" aria-label="主日证道年份归档">
           <strong>按年份</strong>
@@ -39,10 +41,8 @@ const url = (path: string) => `${base}${path.replace(/^\//, '')}`;
           const count = entries.filter((entry) => entry.data.collection.slug === group.slug).length;
           return (
             <a class="collection-card" href={url(`/${sectionKey}/${group.slug}/`)}>
-              <span class="count">{String(count).padStart(2, '0')} 篇内容</span>
-              <h2>{group.title}</h2>
-              <p>{group.description}</p>
-              <span class="text-link">展开大纲 →</span>
+              <div class="collection-main"><h2>{group.title}</h2><span class="collection-divider" aria-hidden="true"></span><p>{group.description}</p></div>
+              <div class="collection-side"><span class="count">{String(count).padStart(2, '0')} 篇</span><span aria-hidden="true">→</span></div>
             </a>
           );
         })}

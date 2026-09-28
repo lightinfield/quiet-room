@@ -23,7 +23,7 @@ function frontmatter(name: string) {
 }
 
 describe('静室信息架构', () => {
-  it('一级导航覆盖全部七个内容栏目', () => {
+  it('一级导航覆盖全部八个内容栏目', () => {
     const hrefs = new Set(NAV.map((item) => item.href));
     for (const section of Object.values(SECTIONS)) expect(hrefs.has(section.href)).toBe(true);
   });
@@ -39,7 +39,7 @@ describe('静室信息架构', () => {
 
 describe('Markdown 内容完整性', () => {
   it('包含跨栏目可验收的样例内容', () => {
-    expect(files.length).toBeGreaterThanOrEqual(12);
+    expect(files.length).toBeGreaterThanOrEqual(16);
     const represented = new Set(files.map((file) => frontmatter(file).section));
     expect([...Object.keys(SECTIONS)].every((key) => represented.has(key))).toBe(true);
   });

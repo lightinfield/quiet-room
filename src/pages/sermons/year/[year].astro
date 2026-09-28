@@ -23,9 +23,11 @@ const url = (path: string) => `${base}${path.replace(/^\//, '')}`;
   <div class="page-shell">
     <header class="section-header">
       <nav class="breadcrumb" aria-label="面包屑"><a href={url('/study/')}>首页</a><span aria-hidden="true">/</span><a href={url('/sermons/')}>主日证道</a><span aria-hidden="true">/</span><span>{year}</span></nav>
-      <p class="page-kicker">SERMON ARCHIVE</p>
-      <h1 class="page-title">{year} 年主日证道</h1>
-      <p class="page-lead">按主日日期倒序整理，同时保留经卷、系列与主题关联。</p>
+      <div class="section-title-line">
+        <h1 class="page-title">{year} 年主日证道</h1>
+        <span class="title-divider" aria-hidden="true"></span>
+        <p class="page-lead">按主日日期倒序整理，同时保留经卷、系列与主题关联。</p>
+      </div>
     </header>
     <div class="content-grid">{entries.map((entry) => <ContentCard entry={entry} />)}</div>
   </div>

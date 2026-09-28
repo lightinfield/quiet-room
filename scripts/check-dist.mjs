@@ -2,7 +2,8 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const dist = join(process.cwd(), 'dist');
-const base = '/quiet-room/';
+const repository = process.env.GITHUB_REPOSITORY?.split('/')[1] ?? 'quiet-room';
+const base = process.env.GITHUB_ACTIONS === 'true' ? `/${repository}/` : '/';
 
 function walk(dir) {
   return readdirSync(dir).flatMap((name) => {
@@ -20,7 +21,7 @@ for (const file of htmlFiles) {
   const matches = [...html.matchAll(/(?:href|src)=["']([^"']+)["']/g)].map((match) => match[1]);
 
   for (const target of matches) {
-    if (!target.startsWith(base)) continue;
+    if (!target.startsWith(base) || target.startsWith('//')) continue;
     const clean = target.slice(base.length).split(/[?#]/)[0];
     if (!clean) continue;
 

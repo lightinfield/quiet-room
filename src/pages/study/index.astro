@@ -14,8 +14,9 @@ const url = (path: string) => `${base}${path.replace(/^\//, '')}`;
 
 <BaseLayout title="首页" description={SITE.description}>
   <section class="home-intro">
-    <div class="home-hero-inner">
+    <div class="home-intro-inner">
       <h1>{SITE.name}</h1>
+      <span class="home-intro-divider" aria-hidden="true"></span>
       <p>在这里安静读经、学习、记录，也把所信的带回日常生活。</p>
     </div>
   </section>
@@ -23,12 +24,15 @@ const url = (path: string) => `${base}${path.replace(/^\//, '')}`;
   <section class="home-section" aria-labelledby="areas-title">
     <div class="section-heading">
       <div><h2 id="areas-title">内容目录</h2></div>
-      <p>按内容进入，也可以通过索引与搜索交叉查找。</p>
+      <p>按内容进入，也可用索引与搜索交叉查找。</p>
     </div>
     <div class="section-grid">
       {Object.values(SECTIONS).map((section) => (
         <a class="section-tile" href={url(section.href)}>
-          <div><h3>{section.title}</h3><p>{section.description}</p></div>
+          <h3>{section.title}</h3>
+          <span class="tile-divider" aria-hidden="true"></span>
+          <p>{section.description}</p>
+          <span class="tile-arrow" aria-hidden="true">→</span>
         </a>
       ))}
     </div>

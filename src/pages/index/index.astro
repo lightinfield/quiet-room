@@ -25,9 +25,11 @@ const records = entries.map((entry) => ({
 <BaseLayout title="索引" description="按栏目、经文、认信、主题与年份浏览静室。">
   <div class="page-shell">
     <header class="section-header">
-      <p class="page-kicker">LIBRARY INDEX</p>
-      <h1 class="page-title">内容索引</h1>
-      <p class="page-lead">纵向按栏目阅读；点击经文、认信、主题或年份，可以直接查看对应内容。</p>
+      <div class="section-title-line">
+        <h1 class="page-title">内容索引</h1>
+        <span class="title-divider" aria-hidden="true"></span>
+        <p class="page-lead">纵向按栏目阅读；点击经文、认信、主题或年份，可以直接查看对应内容。</p>
+      </div>
     </header>
     <div class="index-grid">
       <section class="index-panel"><h2>栏目与系列</h2><div class="index-links">{Object.values(SECTIONS).map((section) => <a href={url(section.href)}>{section.title} · {entries.filter((e) => e.data.section === section.href.slice(1,-1)).length}</a>)}</div></section>
