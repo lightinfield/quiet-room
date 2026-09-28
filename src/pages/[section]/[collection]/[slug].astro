@@ -1,0 +1,74 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { SECTIONS, type SectionKey } from '../../../data/site';
+import { formatDate, isPublished } from '../../../utils/content';
+
+export async function getStaticPaths() {
+  const entries = (await getCollection('library')).filter(isPublished);
+  return entries.map((entry) => ({
+    params: {
+      section: entry.data.section,
+      collection: entry.data.collection.slug,
+      slug: entry.data.slug,
+    },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+const info = SECTIONS[entry.data.section as SectionKey];
+const base = import.meta.env.BASE_URL;
+const url = (path: string) => `${base}${path.replace(/^\//, '')}`;
+---
+
+<BaseLayout title={entry.data.title} description={entry.data.summary}>
+  <article>
+    <div class="article-shell">
+      <nav class="breadcrumb" aria-label="面包屑">
+        <a href={url('/study/')}>首页</a><span aria-hidden="true">/</span>
+        <a href={url(info.href)}>{info.title}</a><span aria-hidden="true">/</span>
+        <a href={url(`/${entry.data.section}/${entry.data.collection.slug}/`)}>{entry.data.collection.title}</a>
+      </nav>
+      <header class="article-head">
+        <span class="article-section">{info.title} · {entry.data.unit?.title ?? entry.data.collection.title}</span>
+        <h1 class="article-title">{entry.data.title}</h1>
+        <p class="article-summary">{entry.data.summary}</p>
+        <div class="article-meta">
+          <time datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>
+          {entry.data.scripture.map((item: string) => <span>经文 · {item}</span>)}
+          {entry.data.confession.map((item: string) => <span>认信 · {item}</span>)}
+        </div>
+      </header>
+    </div>
+
+    <div class="article-tools">
+      <button class="reading-toggle" type="button" data-reading-toggle aria-pressed="false">安静阅读</button>
+    </div>
+
+    {headings.length > 1 && (
+      <nav class="article-toc" aria-label="本文目录">
+        <strong>本文目录</strong>
+        {headings.filter((h) => h.depth <= 3).map((heading) => <a href={`#${heading.slug}`}>{heading.text}</a>)}
+      </nav>
+    )}
+
+    <div class="prose"><Content /></div>
+
+    <div class="article-relations" aria-label="文章标签">
+      {entry.data.tags.map((tag: string) => <span class="pill">{tag}</span>)}
+    </div>
+  </article>
+
+  <script is:inline>
+    (() => {
+      const button = document.querySelector('[data-reading-toggle]');
+      button?.addEventListener('click', () => {
+        const enabled = document.body.classList.toggle('reading-mode');
+        button.setAttribute('aria-pressed', String(enabled));
+        button.textContent = enabled ? '退出安静阅读' : '安静阅读';
+      });
+    })();
+  </script>
+</BaseLayout>

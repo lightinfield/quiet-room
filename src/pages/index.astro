@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../data/site';
+const base = import.meta.env.BASE_URL;
+const asset = `${base}assets/jingshi-cover.webp`;
+const study = `${base}study/`;
+---
+
+<BaseLayout title={SITE.name} hideChrome={true}>
+  <a class="cover-page" href={study} style={`background-image:url('${asset}')`} aria-label="进入静室">
+    <div class="cover-copy">
+      <h1>{SITE.name}</h1>
+      <p>{SITE.subtitle}</p>
+      <blockquote>“你们要休息，要知道我是神。”<cite>诗篇 46:10</cite></blockquote>
+    </div>
+  </a>
+</BaseLayout>

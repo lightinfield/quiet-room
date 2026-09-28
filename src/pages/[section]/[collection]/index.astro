@@ -1,0 +1,75 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ContentCard from '../../../components/ContentCard.astro';
+import { SECTIONS, type SectionKey } from '../../../data/site';
+import { byOrder, isPublished } from '../../../utils/content';
+
+export function getStaticPaths() {
+  return Object.entries(SECTIONS).flatMap(([section, info]) =>
+    info.groups.map((group) => ({ params: { section, collection: group.slug } })),
+  );
+}
+
+const sectionKey = Astro.params.section as SectionKey;
+const collectionSlug = Astro.params.collection!;
+const section = SECTIONS[sectionKey];
+const collection = section.groups.find((item) => item.slug === collectionSlug)!;
+const entries = (await getCollection('library'))
+  .filter(isPublished)
+  .filter((entry) => entry.data.section === sectionKey && entry.data.collection.slug === collectionSlug)
+  .sort(byOrder);
+
+const units = [...new Set(entries.map((entry) => entry.data.unit?.title ?? '未分单元'))].map((title) => ({
+  title,
+  entries: entries.filter((entry) => (entry.data.unit?.title ?? '未分单元') === title),
+}));
+const base = import.meta.env.BASE_URL;
+const url = (path: string) => `${base}${path.replace(/^\//, '')}`;
+---
+
+<BaseLayout title={collection.title} description={collection.description}>
+  <div class="page-shell">
+    <header class="section-header">
+      <nav class="breadcrumb" aria-label="面包屑">
+        <a href={url('/study/')}>首页</a><span aria-hidden="true">/</span>
+        <a href={url(section.href)}>{section.title}</a><span aria-hidden="true">/</span>
+        <span aria-current="page">{collection.title}</span>
+      </nav>
+      <p class="page-kicker">{section.title} · COLLECTION</p>
+      <h1 class="page-title">{collection.title}</h1>
+      <p class="page-lead">{collection.description}</p>
+    </header>
+
+    {units.length > 0 ? (
+      <>
+        <section aria-labelledby="outline-title">
+          <div class="section-heading"><div><h2 id="outline-title">内容大纲</h2><p>按单元递进，点击条目进入正文。</p></div></div>
+          <div class="outline-list">
+            {units.map((unit, index) => (
+              <details class="outline-item">
+                <summary>
+                  <div><h3>{String(index + 1).padStart(2, '0')} · {unit.title}</h3><p>{unit.entries.length} 篇内容，点击展开</p></div>
+                  <span class="outline-count">{unit.entries.length} 篇 · ＋</span>
+                </summary>
+                <div class="outline-entries">
+                  {unit.entries.map((entry) => (
+                    <a href={url(`/${entry.data.section}/${entry.data.collection.slug}/${entry.data.slug}/`)}>
+                      <strong>{entry.data.title}</strong><span>{entry.data.summary}</span>
+                    </a>
+                  ))}
+                </div>
+              </details>
+            ))}
+          </div>
+        </section>
+        <section aria-labelledby="entries-title">
+          <div class="section-heading"><div><h2 id="entries-title">具体内容</h2></div></div>
+          <div class="content-grid">{entries.map((entry) => <ContentCard entry={entry} />)}</div>
+        </section>
+      </>
+    ) : (
+      <div class="empty-state">这个类目已经建立，尚未录入正文。可从“内容工作台”创建第一篇。</div>
+    )}
+  </div>
+</BaseLayout>

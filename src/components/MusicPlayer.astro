@@ -1,0 +1,63 @@
+<aside class="music-player" data-music-player aria-label="安静音乐">
+  <button class="music-main" type="button" data-music-toggle aria-pressed="false">
+    <span class="music-icon" aria-hidden="true">♪</span>
+    <span><strong>安静时光</strong><small data-music-status>轻触开启 · 默认为关闭</small></span>
+  </button>
+  <input class="music-volume" data-music-volume type="range" min="0" max="1" step="0.05" value="0.24" aria-label="音乐音量" />
+</aside>
+
+<script>
+  const player = document.querySelector<HTMLElement>('[data-music-player]');
+  const toggle = player?.querySelector<HTMLButtonElement>('[data-music-toggle]');
+  const status = player?.querySelector<HTMLElement>('[data-music-status]');
+  const volume = player?.querySelector<HTMLInputElement>('[data-music-volume]');
+  let context: AudioContext | undefined;
+  let master: GainNode | undefined;
+  let timer: number | undefined;
+  let step = 0;
+
+  const notes = [261.63, 329.63, 392, 493.88, 392, 329.63, 293.66, 349.23, 440, 392];
+  const playNote = (frequency: number) => {
+    if (!context || !master) return;
+    const now = context.currentTime;
+    const osc = context.createOscillator();
+    const gain = context.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = frequency;
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.08, now + 0.45);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.8);
+    osc.connect(gain).connect(master);
+    osc.start(now);
+    osc.stop(now + 4);
+  };
+
+  const start = async () => {
+    if (!toggle || !status || !volume) return;
+    context ??= new AudioContext();
+    master ??= context.createGain();
+    master.connect(context.destination);
+    master.gain.value = Number(volume.value);
+    await context.resume();
+    playNote(notes[step++ % notes.length] / 2);
+    timer = window.setInterval(() => playNote(notes[step++ % notes.length] / 2), 2600);
+    toggle.setAttribute('aria-pressed', 'true');
+    status.textContent = '轻缓器乐 · 正在播放';
+  };
+
+  const stop = () => {
+    if (timer) window.clearInterval(timer);
+    timer = undefined;
+    context?.suspend();
+    toggle?.setAttribute('aria-pressed', 'false');
+    if (status) status.textContent = '已暂停 · 点击继续';
+  };
+
+  toggle?.addEventListener('click', () => {
+    const playing = toggle.getAttribute('aria-pressed') === 'true';
+    playing ? stop() : start();
+  });
+  volume?.addEventListener('input', () => {
+    if (master) master.gain.value = Number(volume.value);
+  });
+</script>

@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="页面未找到">
+  <section class="not-found">
+    <div><p class="page-kicker">NOT FOUND</p><h1>404</h1><p>这里没有找到对应的书页。</p><a class="button" href={`${base}study/`}>回到静室</a></div>
+  </section>
+</BaseLayout>

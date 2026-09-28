@@ -1,0 +1,71 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SECTIONS } from '../../data/site';
+import { isPublished, unique } from '../../utils/content';
+
+const entries = (await getCollection('library')).filter(isPublished);
+const scriptures = unique(entries.flatMap((entry) => entry.data.scripture)).sort((a, b) => a.localeCompare(b, 'zh-CN'));
+const confessions = unique(entries.flatMap((entry) => entry.data.confession)).sort();
+const tags = unique(entries.flatMap((entry) => entry.data.tags)).sort();
+const years = unique(entries.map((entry) => String(entry.data.date.getFullYear()))).sort().reverse();
+const base = import.meta.env.BASE_URL;
+const url = (path: string) => `${base}${path.replace(/^\//, '')}`;
+const records = entries.map((entry) => ({
+  title: entry.data.title,
+  summary: entry.data.summary,
+  href: url(`/${entry.data.section}/${entry.data.collection.slug}/${entry.data.slug}/`),
+  scripture: entry.data.scripture,
+  confession: entry.data.confession,
+  tags: entry.data.tags,
+  year: String(entry.data.date.getFullYear()),
+}));
+---
+
+<BaseLayout title="索引" description="按栏目、经文、认信、主题与年份浏览静室。">
+  <div class="page-shell">
+    <header class="section-header">
+      <p class="page-kicker">LIBRARY INDEX</p>
+      <h1 class="page-title">内容索引</h1>
+      <p class="page-lead">纵向按栏目阅读；点击经文、认信、主题或年份，可以直接查看对应内容。</p>
+    </header>
+    <div class="index-grid">
+      <section class="index-panel"><h2>栏目与系列</h2><div class="index-links">{Object.values(SECTIONS).map((section) => <a href={url(section.href)}>{section.title} · {entries.filter((e) => e.data.section === section.href.slice(1,-1)).length}</a>)}</div></section>
+      <section class="index-panel"><h2>经文索引</h2><div class="index-links">{scriptures.map((item) => <button type="button" data-index-kind="scripture" data-index-value={item}>{item}</button>)}</div></section>
+      <section class="index-panel"><h2>认信索引</h2><div class="index-links">{confessions.map((item) => <button type="button" data-index-kind="confession" data-index-value={item}>{item}</button>)}</div></section>
+      <section class="index-panel"><h2>主题标签</h2><div class="index-links">{tags.map((item) => <button type="button" data-index-kind="tags" data-index-value={item}>{item}</button>)}</div></section>
+      <section class="index-panel"><h2>年份归档</h2><div class="index-links">{years.map((year) => <button type="button" data-index-kind="year" data-index-value={year}>{year} · {entries.filter((entry) => String(entry.data.date.getFullYear()) === year).length} 篇</button>)}</div></section>
+      <section class="index-panel"><h2>快速管理</h2><p style="color:var(--muted)">新增内容后，分类、搜索和索引会在构建时自动更新。</p><a class="button-ghost" href={url('/admin/')}>打开内容工作台</a></section>
+      <section class="index-panel index-results-panel" data-index-results-panel hidden>
+        <h2 data-index-results-title>索引结果</h2>
+        <div class="index-result-list" data-index-results></div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ records }}>
+  const panel = document.querySelector('[data-index-results-panel]');
+  const title = document.querySelector('[data-index-results-title]');
+  const output = document.querySelector('[data-index-results]');
+  const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  }[char]));
+
+  document.querySelectorAll('[data-index-kind]').forEach((button) => button.addEventListener('click', () => {
+    const kind = button.dataset.indexKind;
+    const value = button.dataset.indexValue;
+    const matches = records.filter((record) => {
+      const field = record[kind];
+      return Array.isArray(field) ? field.includes(value) : field === value;
+    });
+    title.textContent = `${value} · ${matches.length} 篇`;
+    output.innerHTML = matches.map((record) => `
+      <a href="${record.href}">
+        <strong>${escapeHtml(record.title)}</strong>
+        <span>${escapeHtml(record.summary)}</span>
+      </a>`).join('');
+    panel.hidden = false;
+    panel.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
+  }));
+</script>

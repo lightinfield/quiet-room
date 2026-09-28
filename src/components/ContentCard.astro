@@ -1,0 +1,19 @@
+---
+import type { LibraryEntry } from '../utils/content';
+import { entryHref, formatDate, sectionInfo } from '../utils/content';
+const { entry, compact = false } = Astro.props as { entry: LibraryEntry; compact?: boolean };
+const info = sectionInfo(entry.data.section);
+const base = import.meta.env.BASE_URL;
+const href = `${base}${entryHref(entry).replace(/^\//, '')}`;
+---
+
+<article class:list={['content-card', { compact }]}>
+  <div class="card-meta">
+    <span>{info.title}</span>
+    <time datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>
+  </div>
+  <h3><a href={href}>{entry.data.title}</a></h3>
+  <p>{entry.data.summary}</p>
+  {!compact && entry.data.scripture.length > 0 && <div class="card-tags"><span>{entry.data.scripture[0]}</span></div>}
+  <a class="text-link" href={href}>继续阅读 <span aria-hidden="true">→</span></a>
+</article>

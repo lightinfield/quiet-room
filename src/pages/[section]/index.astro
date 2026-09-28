@@ -1,0 +1,59 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContentCard from '../../components/ContentCard.astro';
+import { SECTIONS, type SectionKey } from '../../data/site';
+import { byNewest, isPublished } from '../../utils/content';
+
+export function getStaticPaths() {
+  return Object.keys(SECTIONS).map((section) => ({ params: { section } }));
+}
+
+const sectionKey = Astro.params.section as SectionKey;
+const info = SECTIONS[sectionKey];
+const all = (await getCollection('library')).filter(isPublished);
+const entries = all.filter((entry) => entry.data.section === sectionKey).sort(byNewest);
+const years = [...new Set(entries.map((entry) => entry.data.date.getFullYear()))].sort((a, b) => b - a);
+const base = import.meta.env.BASE_URL;
+const url = (path: string) => `${base}${path.replace(/^\//, '')}`;
+---
+
+<BaseLayout title={info.title} description={info.description}>
+  <div class="page-shell">
+    <header class="section-header">
+      <p class="page-kicker">{info.short.toUpperCase()} · SECTION</p>
+      <h1 class="page-title">{info.title}</h1>
+      <p class="page-lead">{info.description}</p>
+    </header>
+
+    <section aria-labelledby="collections-title">
+      <div class="section-heading"><div><h2 id="collections-title">分类与系列</h2><p>先进入类目，再沿大纲进入具体内容。</p></div></div>
+      {sectionKey === 'sermons' && years.length > 0 && (
+        <div class="year-archive" aria-label="主日证道年份归档">
+          <strong>按年份</strong>
+          {years.map((year) => <a href={url(`/sermons/year/${year}/`)}>{year} 年</a>)}
+        </div>
+      )}
+      <div class="collection-grid">
+        {info.groups.map((group) => {
+          const count = entries.filter((entry) => entry.data.collection.slug === group.slug).length;
+          return (
+            <a class="collection-card" href={url(`/${sectionKey}/${group.slug}/`)}>
+              <span class="count">{String(count).padStart(2, '0')} 篇内容</span>
+              <h2>{group.title}</h2>
+              <p>{group.description}</p>
+              <span class="text-link">展开大纲 →</span>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+
+    {entries.length > 0 && (
+      <section aria-labelledby="section-latest">
+        <div class="section-heading"><div><h2 id="section-latest">最近更新</h2></div></div>
+        <div class="content-grid">{entries.slice(0, 6).map((entry) => <ContentCard entry={entry} compact={true} />)}</div>
+      </section>
+    )}
+  </div>
+</BaseLayout>
