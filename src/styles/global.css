@@ -196,7 +196,7 @@ img { max-width: 100%; display: block; }
   position: absolute;
   inset: 0;
   z-index:1;
-  background:linear-gradient(90deg, rgba(25,18,14,.02) 0%, rgba(25,18,14,.02) 44%, rgba(239,221,199,.28) 62%, rgba(239,221,199,.70) 100%);
+  background:linear-gradient(90deg, rgba(16,12,9,.04) 0%, rgba(16,12,9,.05) 46%, rgba(16,12,9,.28) 68%, rgba(16,12,9,.62) 100%);
   pointer-events:none;
 }
 .cover-copy {
@@ -207,14 +207,15 @@ img { max-width: 100%; display: block; }
   right:max(6vw, calc((100vw - 1240px) / 2));
   width: min(500px, 38vw);
   margin:0;
-  color: #3e3024;
+  color: #fff8ef;
   text-align: center;
   font-family: var(--serif);
+  text-shadow:0 2px 22px rgba(0,0,0,.34);
 }
 .cover-copy h1 { margin: 0; font: 600 clamp(48px, 5.3vw, 74px)/1.08 var(--serif); letter-spacing: .14em; text-rendering: geometricPrecision; }
 .cover-copy > p { margin: 14px 0 34px; font-size: clamp(15px, 1.35vw, 19px); letter-spacing: .12em; }
 .cover-copy blockquote { margin: 0; font-size: clamp(14px, 1.2vw, 18px); line-height: 1.85; }
-.cover-copy cite { display: block; margin-top: 8px; color: rgba(62,48,36,.72); font-size: .82em; font-style: normal; letter-spacing: .1em; }
+.cover-copy cite { display: block; margin-top: 8px; color: rgba(255,248,239,.76); font-size: .82em; font-style: normal; letter-spacing: .1em; }
 .home-hero { position:relative; min-height:388px; background-size:cover; background-position:center 55%; overflow:hidden; }
 .home-hero-shade { position:absolute; inset:0; background:linear-gradient(90deg, rgba(12,11,9,.08) 0%, rgba(12,11,9,.04) 46%, rgba(12,11,9,.40) 67%, rgba(12,11,9,.72) 100%); }
 .home-hero-copy { position:relative; z-index:1; width:min(1428px,calc(100vw - 96px)); margin:0 auto; padding:70px 18px 48px 0; color:#fffaf3; font-family:var(--serif); text-align:left; display:block; }
