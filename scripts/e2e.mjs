@@ -51,8 +51,13 @@ await check('封面进入静室', async () => {
   const cover = page.locator('.cover-photo');
   assert(await cover.count() === 1, '封面照片元素缺失');
   const coverSize = await cover.evaluate((img) => [img.naturalWidth, img.naturalHeight]);
-  assert(coverSize[0] >= 1920 && coverSize[1] >= 1080, `封面分辨率不足 ${coverSize.join('×')}`);
-  assert(await cover.evaluate((img) => getComputedStyle(img).objectFit === 'contain'), '封面照片没有完整显示');
+  assert(coverSize[0] >= 2560 && coverSize[1] >= 1440, `封面分辨率不足 ${coverSize.join('×')}`);
+  assert(await cover.evaluate((img) => getComputedStyle(img).objectFit === 'cover'), '封面照片没有铺满视口');
+  const viewport = await page.evaluate(() => [window.innerWidth, window.innerHeight]);
+  const pageBox = await page.locator('.cover-page').boundingBox();
+  const photoBox = await cover.boundingBox();
+  assert(pageBox && Math.abs(pageBox.width - viewport[0]) <= 1 && Math.abs(pageBox.height - viewport[1]) <= 1, `封面容器未铺满视口 ${pageBox?.width}×${pageBox?.height}`);
+  assert(photoBox && Math.abs(photoBox.width - viewport[0]) <= 1 && Math.abs(photoBox.height - viewport[1]) <= 1, `封面照片元素未铺满视口 ${photoBox?.width}×${photoBox?.height}`);
   await page.getByRole('link', { name: /进入静室/ }).click();
   await page.waitForURL('**/study/');
   assert((await page.locator('.home-hero h1').textContent())?.includes('静室'), '首页长图未加载');
