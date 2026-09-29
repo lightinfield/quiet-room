@@ -1,5 +1,6 @@
 ---
 const base = import.meta.env.BASE_URL;
+const { variant = 'floating' } = Astro.props as { variant?: 'floating' | 'inline' };
 const tracks = [
   { title: '静水微光', src: `${base}audio/still-waters.mp3` },
   { title: '灯下书页', src: `${base}audio/lamp-and-pages.mp3` },
@@ -7,7 +8,7 @@ const tracks = [
 ];
 ---
 
-<aside class="music-player" data-music-player aria-label="安静音乐">
+<aside class:list={['music-player', { 'music-player-inline': variant === 'inline' }]} data-music-player aria-label="安静音乐">
   <button class="music-main" type="button" data-music-toggle aria-pressed="false">
     <span class="music-icon" aria-hidden="true">♪</span>
     <span><strong data-music-title>静水微光</strong><small data-music-status aria-live="polite">1 / 3 · 点击播放</small></span>

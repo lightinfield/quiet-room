@@ -11,12 +11,14 @@ interface Props {
   description?: string;
   image?: string;
   hideChrome?: boolean;
+  hideMusic?: boolean;
 }
 
 const {
   title = SITE.name,
   description = SITE.description,
   hideChrome = false,
+  hideMusic = false,
 } = Astro.props;
 const pageTitle = title === SITE.name ? title : `${title} · ${SITE.name}`;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
@@ -43,7 +45,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
     {!hideChrome && <Header />}
     <main id="main"><slot /></main>
     {!hideChrome && <Footer />}
-    {!hideChrome && <MusicPlayer />}
+    {!hideChrome && !hideMusic && <MusicPlayer />}
     {!hideChrome && <SearchDialog />}
   </body>
 </html>

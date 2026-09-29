@@ -101,8 +101,14 @@ export const SECTIONS: Record<SectionKey, {
 
 export const NAV = [
   { title: '首页', href: '/study/' },
-  ...Object.values(SECTIONS).map(({ title, href }) => ({ title, href })),
-  { title: '索引', href: '/index/' },
+  { title: '信仰告白', href: '/confession/' },
+  { title: '圣辅课程', href: '/counseling/' },
+  { title: '主日证道', href: '/sermons/' },
+  { title: '灵修笔记', href: '/devotions/' },
+  { title: '神学课堂', href: '/theology/' },
+  { title: '读书笔记', href: '/reading/' },
+  { title: '要点思考', href: '/notes/' },
+  { title: '信仰生活', href: '/life/' },
   { title: '关于', href: '/about/' },
 ];
 

@@ -48,34 +48,29 @@ await check('封面进入静室', async () => {
   const response = await page.goto(`${baseURL}/`, { waitUntil: 'networkidle' });
   assert(response?.ok(), `HTTP ${response?.status()}`);
   assert((await page.locator('.cover-copy h1').textContent())?.includes('静室'), '封面站名不正确');
-  assert(await page.locator('.cover-page').evaluate((el) => getComputedStyle(el).backgroundImage.includes('jingshi-cover.webp')), '封面真实照片未加载');
-  const coverSize = await page.locator('.cover-page').evaluate((el) => new Promise((resolve) => {
-    const src = getComputedStyle(el).backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1];
-    const img = new Image();
-    img.onload = () => resolve([img.naturalWidth, img.naturalHeight]);
-    img.onerror = () => resolve([0, 0]);
-    img.src = src || '';
-  }));
+  const cover = page.locator('.cover-photo');
+  assert(await cover.count() === 1, '封面照片元素缺失');
+  const coverSize = await cover.evaluate((img) => [img.naturalWidth, img.naturalHeight]);
   assert(coverSize[0] >= 1920 && coverSize[1] >= 1080, `封面分辨率不足 ${coverSize.join('×')}`);
+  assert(await cover.evaluate((img) => getComputedStyle(img).objectFit === 'contain'), '封面照片没有完整显示');
   await page.getByRole('link', { name: /进入静室/ }).click();
   await page.waitForURL('**/study/');
-  assert((await page.locator('.home-intro h1').textContent())?.includes('静室'), '首页未加载');
-  assert(await page.locator('.home-intro img').count() === 0, '首页不应再使用大图');
+  assert((await page.locator('.home-hero h1').textContent())?.includes('静室'), '首页长图未加载');
   await page.screenshot({ path: join(outDir, 'home-desktop.png'), fullPage: true });
 });
 
-await check('首页紧凑横向排版', async () => {
+await check('首页按参考图完成十宫格与信息面板', async () => {
   await page.goto(`${baseURL}/study/`, { waitUntil: 'networkidle' });
-  assert((await page.locator('.home-intro p').textContent())?.includes('在这里安静读经、学习、记录，也把所信的带回日常生活。'), '首页说明文案不正确');
-  assert(await page.locator('.section-tile').count() === 8, '首页内容目录应有八个入口');
-  const tile = page.locator('.section-tile').first();
-  const titleBox = await tile.locator('h3').boundingBox();
-  const descBox = await tile.locator('p').boundingBox();
-  assert(titleBox && descBox && Math.abs((titleBox.y + titleBox.height / 2) - (descBox.y + descBox.height / 2)) < 18, '目录标题与说明没有横向对齐');
-  const recent = page.locator('.content-card').first();
-  const recentTitle = await recent.locator('h3').boundingBox();
-  const scripture = await recent.locator('.card-scripture').boundingBox();
-  assert(recentTitle && scripture && Math.abs((recentTitle.y + recentTitle.height / 2) - (scripture.y + scripture.height / 2)) < 18, '最近整理标题与经文没有并排');
+  assert((await page.locator('.home-hero p').textContent())?.includes('在这里安静读经、学习、记录'), '首页长图说明文案不正确');
+  assert(await page.locator('.home-category-card').count() === 10, '首页应有十个栏目入口');
+  const cards = page.locator('.home-category-card');
+  const first = await cards.nth(0).boundingBox();
+  const fifth = await cards.nth(4).boundingBox();
+  const sixth = await cards.nth(5).boundingBox();
+  assert(first && fifth && sixth && Math.abs(first.y - fifth.y) < 3 && sixth.y > first.y + first.height, '桌面栏目没有按 5×2 排列');
+  assert(await page.locator('.home-update-row').count() === 4, '最近更新应显示四行');
+  assert((await page.locator('.home-verse-card').textContent())?.includes('箴言 3:5-6'), '今日经文内容不正确');
+  assert(await page.locator('.home-music-card .music-player-inline').count() === 1, '首页音乐面板缺失');
 });
 
 await check('八个栏目全部可达并展示分类入口', async () => {

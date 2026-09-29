@@ -12,10 +12,9 @@ const localPathname = base !== '/' && pathname.startsWith(base)
 <header class="site-header" data-header>
   <div class="header-inner">
     <a class="brand" href={url('/study/')} aria-label={`${SITE.name}首页`}>
-      <span>
-        <strong>{SITE.name}</strong>
-        <small>{SITE.subtitle}</small>
-      </span>
+      <strong>{SITE.name}</strong>
+      <span class="brand-divider" aria-hidden="true"></span>
+      <small>在这里安静读经、学习、记录，也把所信的带回日常生活。</small>
     </a>
 
     <nav class="desktop-nav" aria-label="主导航">
@@ -27,8 +26,13 @@ const localPathname = base !== '/' && pathname.startsWith(base)
     </nav>
 
     <div class="header-actions">
-      <button class="icon-button" type="button" data-search-open aria-label="搜索静室" title="搜索">⌕</button>
-      <button class="icon-button" type="button" data-theme-toggle aria-label="切换深浅主题" title="深浅主题">☼</button>
+      <button class="header-icon-button" type="button" data-search-open aria-label="搜索静室" title="搜索">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4.2 4.2"></path></svg>
+      </button>
+      <span class="header-action-divider" aria-hidden="true"></span>
+      <span class="theme-glyph" aria-hidden="true">☼</span>
+      <button class="theme-switch" type="button" data-theme-toggle aria-label="切换深浅主题" title="深浅主题"><span></span></button>
+      <span class="theme-glyph" aria-hidden="true">☾</span>
       <button class="icon-button mobile-only" type="button" data-menu-toggle aria-label="打开导航" aria-expanded="false" title="导航">☰</button>
     </div>
   </div>
@@ -50,9 +54,9 @@ const localPathname = base !== '/' && pathname.startsWith(base)
       const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
       root.dataset.theme = next;
       localStorage.setItem('quiet-room-theme', next);
-      themeButton.textContent = next === 'dark' ? '☾' : '☼';
+      themeButton.setAttribute('aria-pressed', String(next === 'dark'));
     });
-    if (themeButton) themeButton.textContent = root.dataset.theme === 'dark' ? '☾' : '☼';
+    if (themeButton) themeButton.setAttribute('aria-pressed', String(root.dataset.theme === 'dark'));
 
     const menuButton = document.querySelector('[data-menu-toggle]');
     const mobileNav = document.querySelector('[data-mobile-nav]');

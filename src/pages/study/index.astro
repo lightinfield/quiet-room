@@ -1,50 +1,78 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ContentCard from '../../components/ContentCard.astro';
+import MusicPlayer from '../../components/MusicPlayer.astro';
 import { SECTIONS, SITE } from '../../data/site';
-import { byNewest, isPublished } from '../../utils/content';
 
-const entries = (await getCollection('library')).filter(isPublished).sort(byNewest);
-const featured = entries.filter((entry) => entry.data.featured).slice(0, 6);
-const latest = (featured.length >= 3 ? featured : entries).slice(0, 6);
 const base = import.meta.env.BASE_URL;
 const url = (path: string) => `${base}${path.replace(/^\//, '')}`;
+const hero = `${base}assets/jingshi-cover.webp`;
+const cards = [
+  { title: '信仰告白', href: SECTIONS.confession.href, description: '以圣经为最高权威，在历史教会的信经与威斯敏斯特标准中学习清楚地认信。' },
+  { title: '圣辅课程', href: SECTIONS.counseling.href, description: '学习圣经辅导，按课程大纲整理理论与应用。' },
+  { title: '主日证道', href: SECTIONS.sermons.href, description: '按时间、经卷与主题整理讲章，在神的话语中得造就。' },
+  { title: '灵修笔记', href: SECTIONS.devotions.href, description: '按圣经章节记录灵修心得，在神的话语中与主相遇。' },
+  { title: '神学课堂', href: SECTIONS.theology.href, description: '系统学习神学课程，扎根真理，装备生命。' },
+  { title: '读书笔记', href: SECTIONS.reading.href, description: '记录阅读所得，在经典中学习，在思想中成长。' },
+  { title: '要点思考', href: SECTIONS.notes.href, description: '针对重要问题的查考与思辨，在真理中寻求更深的理解。' },
+  { title: '信仰生活', href: SECTIONS.life.href, description: '将信仰落实在日常生活中，工作、家庭、教会与社会。' },
+  { title: '书房索引', href: '/index/', description: '按主题、经卷、作者、标签等快速查找所有内容。' },
+  { title: '关于', href: '/about/', description: '站点缘起、信仰立场与联系信息。' },
+];
+const updates = [
+  { date: '2024-01-15', section: '灵修笔记', title: '诗篇 23：耶和华是我的牧者', summary: '在焦虑的时代，重新学习在良牧中得安息……', scripture: '诗篇 23:1-6', href: '/devotions/psalms-devotion/' },
+  { date: '2024-01-12', section: '读书笔记', title: '《基督教要义》读书笔记（1）', summary: '加尔文在开篇就指出，所有的智慧若不认识神，都是虚空的……', scripture: '罗马书 1:16', href: '/reading/doctrine-books/' },
+  { date: '2024-01-08', section: '主日证道', title: '永恒的盼望', summary: '基于彼得前书 1:3-9，思考基督徒盼望的性质与意义……', scripture: '彼得前书 1:3-9', href: '/sermons/' },
+  { date: '2024-01-05', section: '要点思考', title: '苦难中的神学思考', summary: '从圣经、教义和教会历史思考苦难的意义……', scripture: '罗马书 8:28', href: '/notes/' },
+];
 ---
 
-<BaseLayout title="首页" description={SITE.description}>
-  <section class="home-intro">
-    <div class="home-intro-inner">
-      <h1>{SITE.name}</h1>
-      <span class="home-intro-divider" aria-hidden="true"></span>
-      <p>在这里安静读经、学习、记录，也把所信的带回日常生活。</p>
+<BaseLayout title="首页" description={SITE.description} hideMusic={true}>
+  <section class="home-hero" style={`background-image:url('${hero}')`}>
+    <div class="home-hero-shade"></div>
+    <div class="home-hero-copy">
+      <h1>静室</h1>
+      <p>在这里安静读经、学习、记录，<br />也把所信的带回日常生活。</p>
+      <span class="hero-rule" aria-hidden="true"></span>
+      <blockquote>“你们要休息，要知道我是神！”<cite>诗篇 46:10</cite></blockquote>
     </div>
   </section>
 
-  <section class="home-section" aria-labelledby="areas-title">
-    <div class="section-heading">
-      <div><h2 id="areas-title">内容目录</h2></div>
-      <p>按内容进入，也可用索引与搜索交叉查找。</p>
-    </div>
-    <div class="section-grid">
-      {Object.values(SECTIONS).map((section) => (
-        <a class="section-tile" href={url(section.href)}>
-          <h3>{section.title}</h3>
-          <span class="tile-divider" aria-hidden="true"></span>
+  <div class="home-reference-shell">
+    <section class="home-card-grid" aria-label="内容入口">
+      {cards.map((section) => (
+        <a class="home-category-card" href={url(section.href)}>
+          <div class="home-category-title"><h2>{section.title}</h2><span aria-hidden="true">›</span></div>
           <p>{section.description}</p>
-          <span class="tile-arrow" aria-hidden="true">→</span>
         </a>
       ))}
-    </div>
-  </section>
+    </section>
 
-  <section class="home-section" aria-labelledby="latest-title">
-    <div class="section-heading">
-      <div><h2 id="latest-title">最近整理</h2></div>
-      <a class="text-link" href={url('/index/')}>全部索引</a>
-    </div>
-    <div class="content-grid">
-      {latest.map((entry) => <ContentCard entry={entry} />)}
-    </div>
-  </section>
+    <section class="home-lower-grid">
+      <div class="home-updates-panel">
+        <div class="home-panel-head"><h2>最近更新</h2><a href={url('/index/')}>查看全部 <span aria-hidden="true">→</span></a></div>
+        <div class="home-update-list">
+          {updates.map((item) => (
+            <a class="home-update-row" href={url(item.href)}>
+              <time>{item.date}</time>
+              <span class="home-update-section">{item.section}</span>
+              <strong>{item.title}</strong>
+              <span class="home-update-summary">{item.summary}</span>
+              <span class="home-update-scripture">{item.scripture}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <div class="home-side-stack">
+        <section class="home-verse-card" aria-labelledby="daily-verse-title">
+          <div class="home-panel-head"><h2 id="daily-verse-title">今日经文</h2><span>2024年1月15日</span></div>
+          <blockquote>“你要专心仰赖耶和华，不可倚靠自己的聪明，<br />在你一切所行的事上都要认定他，他必指引你的路。”<cite>箴言 3:5-6</cite></blockquote>
+        </section>
+        <section class="home-music-card">
+          <div class="home-panel-head"><h2>安静时光</h2><span>轻柔钢琴 · 安静陪伴　　选择⌄</span></div>
+          <MusicPlayer variant="inline" />
+        </section>
+      </div>
+    </section>
+  </div>
 </BaseLayout>
